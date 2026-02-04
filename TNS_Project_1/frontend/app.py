@@ -1,29 +1,44 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="ML Model Predictor")
+st.set_page_config(page_title="Production AI", layout="wide")
 
-st.title("ML Model Prediction App")
+st.title("🏭 Manufacturing Production Predictor")
 
-# Example: change number of inputs based on your model
-feature1 = st.number_input("Feature 1")
-feature2 = st.number_input("Feature 2")
+# Define the 17 features for display labels
+feature_names = [
+    "Machine_ID", "Temperature", "Pressure", "Vibration_Level", 
+    "Operational_Hours", "Maintenance_Cycle", "Material_Quality", "Shift",
+    "Machine_Type", "Material_Grade", "Day_of_Week", "Speed_Setting",
+    "Energy_Consumption", "Coolant_Temperature", "Material_Viscosity",
+    "Ambient_Temperature", "Operator_Experience"
+]
 
-if st.button("Predict"):
-    payload = {
-        "features": [feature1, feature2]
-    }
+st.sidebar.header("Input Parameters")
+inputs = []
 
+# Create a clean input form
+with st.form("input_form"):
+    cols = st.columns(3)
+    for i, name in enumerate(feature_names):
+        val = cols[i % 3].number_input(f"{name}", value=0.0)
+        inputs.append(val)
+    
+    submit = st.form_submit_button("Predict Performance")
+
+if submit:
     try:
+        # Post to the FastAPI backend
         response = requests.post(
-            "http://127.0.0.1:8000/predict",
-            json=payload
+            "http://127.0.0.1:8000/predict", 
+            json={"features": inputs}
         )
-
+        
         if response.status_code == 200:
-            st.success(f"Prediction: {response.json()['prediction']}")
+            prediction = response.json()["predicted_output"]
+            st.balloons()
+            st.success(f"### 🚀 Predicted Production: {prediction} Parts Per Hour")
         else:
-            st.error("Prediction failed")
-
+            st.error(f"Backend Error: {response.text}")
     except Exception as e:
-        st.error(f"Backend not reachable: {e}")
+        st.error(f"Could not connect to Backend. Is it running? {e}")
