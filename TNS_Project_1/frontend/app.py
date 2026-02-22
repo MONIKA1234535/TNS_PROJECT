@@ -30,7 +30,7 @@ if submit:
     try:
         # Post to the FastAPI backend
         response = requests.post(
-            "http://127.0.0.1:8000/predict", 
+            "https://tns-project.onrender.com", 
             json={"features": inputs}
         )
         
