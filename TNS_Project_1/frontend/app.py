@@ -28,11 +28,10 @@ with st.form("input_form"):
 
 if submit:
     try:
-        # Post to the FastAPI backend
         response = requests.post(
-            "https://tns-project.onrender.com/docs", 
-            json={"features": inputs}
-        )
+    "https://tns-project.onrender.com/predict",
+    json={"features": inputs}
+)
         
         if response.status_code == 200:
             prediction = response.json()["predicted_output"]
